@@ -1,52 +1,58 @@
-import './App.css';
+import './styles/styles.scss';
 
-import React, { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
-import logo from './logo.svg';
+import BaseCard from './components/base/BaseCard';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [characters, setCharacters] = useState<Array<unknown> | null>(null);
+  const [activeCards, setActiveCards] = useState<Array<any>>([]);
+  const [matches, setMatches] = useState<Array<number>>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  const onClickCardCallback = (index: number, id: number) => {
+    setActiveCards((current: Array<number>) => [...current, { id, index }]);
+  };
+
+  useEffect(() => {
+    if (activeCards.length === 2) {
+      const isEqual = activeCards[0].id === activeCards[1].id;
+      setTimeout(() => {
+        if (isEqual)
+          setMatches((current: Array<number>) => [...current, activeCards[0].id]);
+        setActiveCards([]);
+      }, 1000);
+    }
+  }, [activeCards]);
+
+  useEffect(() => {
+    const fetchCharacters = async () => {
+      setLoading(true);
+      const { data } = await axios(
+        'https://www.breakingbadapi.com/api/character/random?limit=5',
+      );
+      const pairsArray = [...data, ...data];
+      setCharacters(pairsArray.sort(() => 0.5 - Math.random()));
+      setLoading(false);
+    };
+    fetchCharacters();
+  }, []);
+  if (loading) return <p>Loading...</p>;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p className="header">
-          🚀 Vite + React + Typescript 🤘 & <br />
-          Eslint 🔥+ Prettier
-        </p>
-
-        <div className="body">
-          <button onClick={() => setCount((count) => count + 1)}>
-            🪂 Click me : {count}
-          </button>
-
-          <p> Don&apos;t forgot to install Eslint and Prettier in Your Vscode.</p>
-
-          <p>
-            Mess up the code in <code>App.tsx </code> and save the file.
-          </p>
-          <p>
-            <a
-              className="App-link"
-              href="https://reactjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
-            {' | '}
-            <a
-              className="App-link"
-              href="https://vitejs.dev/guide/features.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Vite Docs
-            </a>
-          </p>
-        </div>
-      </header>
+    <div className="layout">
+      {characters
+        ? characters.map((character: any, index: number) => (
+            <BaseCard
+              character={character}
+              key={index}
+              activeCards={activeCards}
+              onClickCardCallback={onClickCardCallback}
+              index={index}
+              matches={matches}
+            />
+          ))
+        : null}
     </div>
   );
 }

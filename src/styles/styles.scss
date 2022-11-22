@@ -1,0 +1,40 @@
+*{
+    box-sizing: border-box;
+}
+.layout{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.card{
+    height: 250px;
+    width: 250px;
+    background-color: #181818;
+    border-radius: 15px;
+    background-image: url(https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png);
+    background-repeat: no-repeat;
+    background-size: 100px;
+    background-position: center;
+    padding: 15px;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    transition: all 1s;
+    &.active{
+        transform: rotateY(180deg);
+        background-image: none;
+    }
+    &__image{
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 1s;
+        border-radius: 15px;
+        &.active{
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}
