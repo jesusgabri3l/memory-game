@@ -5,22 +5,31 @@ import { useEffect, useState } from 'react';
 
 import BaseCard from './components/base/BaseCard';
 
+interface Character {
+  char_id: number;
+  img: string;
+}
+
+interface ActiveCard {
+  id: number;
+  index: number;
+}
+
 function App() {
-  const [characters, setCharacters] = useState<Array<unknown> | null>(null);
-  const [activeCards, setActiveCards] = useState<Array<any>>([]);
-  const [matches, setMatches] = useState<Array<number>>([]);
+  const [characters, setCharacters] = useState<Character[] | null>(null);
+  const [activeCards, setActiveCards] = useState<ActiveCard[]>([]);
+  const [matches, setMatches] = useState<number[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const onClickCardCallback = (index: number, id: number) => {
-    setActiveCards((current: Array<number>) => [...current, { id, index }]);
+    setActiveCards((current) => [...current, { id, index }]);
   };
 
   useEffect(() => {
     if (activeCards.length === 2) {
       const isEqual = activeCards[0].id === activeCards[1].id;
       setTimeout(() => {
-        if (isEqual)
-          setMatches((current: Array<number>) => [...current, activeCards[0].id]);
+        if (isEqual) setMatches((current) => [...current, activeCards[0].id]);
         setActiveCards([]);
       }, 1000);
     }
@@ -29,7 +38,7 @@ function App() {
   useEffect(() => {
     const fetchCharacters = async () => {
       setLoading(true);
-      const { data } = await axios(
+      const { data } = await axios<Character[]>(
         'https://www.breakingbadapi.com/api/character/random?limit=5',
       );
       const pairsArray = [...data, ...data];
@@ -38,21 +47,21 @@ function App() {
     };
     fetchCharacters();
   }, []);
+
   if (loading) return <p>Loading...</p>;
+
   return (
     <div className="layout">
-      {characters
-        ? characters.map((character: any, index: number) => (
-            <BaseCard
-              character={character}
-              key={index}
-              activeCards={activeCards}
-              onClickCardCallback={onClickCardCallback}
-              index={index}
-              matches={matches}
-            />
-          ))
-        : null}
+      {characters?.map((character, index) => (
+        <BaseCard
+          character={character}
+          key={index}
+          activeCards={activeCards}
+          onClickCardCallback={onClickCardCallback}
+          index={index}
+          matches={matches}
+        />
+      ))}
     </div>
   );
 }

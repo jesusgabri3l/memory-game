@@ -1,23 +1,37 @@
-function BaseCard({ character, activeCards, onClickCardCallback, index, matches }: any) {
+interface Character {
+  char_id: number;
+  img: string;
+}
+
+interface ActiveCard {
+  id: number;
+  index: number;
+}
+
+interface Props {
+  character: Character;
+  activeCards: ActiveCard[];
+  matches: number[];
+  index: number;
+  onClickCardCallback: (index: number, id: number) => void;
+}
+
+function BaseCard({ character, activeCards, onClickCardCallback, index, matches }: Props) {
+  const isMatched = matches.includes(character.char_id);
+  const isFlipped =
+    isMatched || activeCards.some((card) => card.index === index);
+
   return (
     <button
-      className={`card ${
-        (matches.includes(character.char_id) ||
-          activeCards.find((card: any) => card.index === index)) &&
-        'active'
-      }`}
+      className={`card ${isFlipped ? 'active' : ''}`}
       onClick={() => onClickCardCallback(index, character.char_id)}
-      disabled={matches.includes(character.chard_id)}
+      disabled={isMatched}
     >
       <img
         alt="illustration"
         src={character.img}
         loading="lazy"
-        className={`card__image ${
-          (matches.includes(character.char_id) ||
-            activeCards.find((card: any) => card.index === index)) &&
-          'active'
-        }`}
+        className={`card__image ${isFlipped ? 'active' : ''}`}
       />
     </button>
   );
