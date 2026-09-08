@@ -1,80 +1,78 @@
 import './styles/styles.scss';
 
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-
-import BaseCard from './components/base/BaseCard';
-
-interface Character {
-  char_id: number;
-  img: string;
-}
-
-interface ActiveCard {
-  id: number;
-  index: number;
-}
-
-interface ThronesCharacter {
-  id: number;
-  imageUrl: string;
-}
-
-function pickRandom<T>(items: T[], count: number): T[] {
-  return [...items].sort(() => 0.5 - Math.random()).slice(0, count);
-}
+import GameBoard from './components/GameBoard';
+import GameHeader from './components/GameHeader';
+import GameModal from './components/GameModal';
+import HouseGate from './components/HouseGate';
+import StartGate from './components/StartGate';
+import { useGame } from './hooks/useGame';
+import { useHouseName } from './hooks/useHouseName';
 
 function App() {
-  const [characters, setCharacters] = useState<Character[] | null>(null);
-  const [activeCards, setActiveCards] = useState<ActiveCard[]>([]);
-  const [matches, setMatches] = useState<number[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { houseName, setHouseName } = useHouseName();
+  const game = useGame();
 
-  const onClickCardCallback = (index: number, id: number) => {
-    setActiveCards((current) => [...current, { id, index }]);
-  };
+  if (!houseName) {
+    return <HouseGate onSubmit={setHouseName} />;
+  }
 
-  useEffect(() => {
-    if (activeCards.length === 2) {
-      const isEqual = activeCards[0].id === activeCards[1].id;
-      setTimeout(() => {
-        if (isEqual) setMatches((current) => [...current, activeCards[0].id]);
-        setActiveCards([]);
-      }, 1000);
-    }
-  }, [activeCards]);
+  if (game.error) {
+    return (
+      <p className="feedback">
+        The Maester&apos;s ravens could not reach the Citadel. Try again later.
+      </p>
+    );
+  }
 
-  useEffect(() => {
-    const fetchCharacters = async () => {
-      setLoading(true);
-      const { data } = await axios<ThronesCharacter[]>(
-        'https://thronesapi.com/api/v2/Characters',
-      );
-      const characters = pickRandom(data, 5).map((character) => ({
-        char_id: character.id,
-        img: character.imageUrl,
-      }));
-      const pairsArray = [...characters, ...characters];
-      setCharacters(pairsArray.sort(() => 0.5 - Math.random()));
-      setLoading(false);
-    };
-    fetchCharacters();
-  }, []);
+  if (!game.characters || game.cards.length === 0) {
+    return <p className="feedback">Summoning the houses...</p>;
+  }
 
-  if (loading) return <p>Loading...</p>;
+  if (!game.hasStarted) {
+    return <StartGate houseName={houseName} level={game.level} onStart={game.startGame} />;
+  }
+
+  const flippedUids = game.flipped.map((card) => card.uid);
 
   return (
     <div className="layout">
-      {characters?.map((character, index) => (
-        <BaseCard
-          character={character}
-          key={index}
-          activeCards={activeCards}
-          onClickCardCallback={onClickCardCallback}
-          index={index}
-          matches={matches}
+      <GameHeader
+        houseName={houseName}
+        levelNumber={game.levelNumber}
+        totalLevels={game.totalLevels}
+        timeLeft={game.timeLeft}
+        attemptsLeft={game.attemptsLeft}
+      />
+      <GameBoard
+        cards={game.cards}
+        flippedUids={flippedUids}
+        matchedIds={game.matchedIds}
+        onCardClick={game.flipCard}
+      />
+      {game.status === 'lost' && (
+        <GameModal
+          title="Defeat"
+          message={`You have lost the battle, the banners of your house ${houseName} have been burned down.`}
+          actionLabel="Retry this level"
+          onAction={game.retryLevel}
         />
-      ))}
+      )}
+      {game.status === 'levelComplete' && (
+        <GameModal
+          title="Level cleared"
+          message={`House ${houseName} has won this battle. Onward to level ${game.levelNumber + 1}.`}
+          actionLabel="Continue"
+          onAction={game.nextLevel}
+        />
+      )}
+      {game.status === 'victory' && (
+        <GameModal
+          title="Victory"
+          message={`Your house ${houseName} has conquered the Iron Throne, and you might get some rest at the Red Keep.`}
+          actionLabel="Play again"
+          onAction={game.restartGame}
+        />
+      )}
     </div>
   );
 }
