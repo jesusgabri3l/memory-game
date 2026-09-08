@@ -1,4 +1,22 @@
 export const CharactersResponse = [
-  { char_id: 1, name: 'Walter White', img: 'https://example.com/walter.jpg' },
-  { char_id: 2, name: 'Jesse Pinkman', img: 'https://example.com/jesse.jpg' },
+  {
+    id: 0,
+    firstName: 'Daenerys',
+    lastName: 'Targaryen',
+    fullName: 'Daenerys Targaryen',
+    title: 'Mother of Dragons',
+    family: 'House Targaryen',
+    image: 'daenerys.jpg',
+    imageUrl: 'https://thronesapi.com/assets/images/daenerys.jpg',
+  },
+  {
+    id: 1,
+    firstName: 'Samwell',
+    lastName: 'Tarly',
+    fullName: 'Samwell Tarly',
+    title: 'Maester',
+    family: 'House Tarly',
+    image: 'sam.jpg',
+    imageUrl: 'https://thronesapi.com/assets/images/sam.jpg',
+  },
 ];

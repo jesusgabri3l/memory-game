@@ -15,6 +15,15 @@ interface ActiveCard {
   index: number;
 }
 
+interface ThronesCharacter {
+  id: number;
+  imageUrl: string;
+}
+
+function pickRandom<T>(items: T[], count: number): T[] {
+  return [...items].sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
 function App() {
   const [characters, setCharacters] = useState<Character[] | null>(null);
   const [activeCards, setActiveCards] = useState<ActiveCard[]>([]);
@@ -38,10 +47,14 @@ function App() {
   useEffect(() => {
     const fetchCharacters = async () => {
       setLoading(true);
-      const { data } = await axios<Character[]>(
-        'https://www.breakingbadapi.com/api/character/random?limit=5',
+      const { data } = await axios<ThronesCharacter[]>(
+        'https://thronesapi.com/api/v2/Characters',
       );
-      const pairsArray = [...data, ...data];
+      const characters = pickRandom(data, 5).map((character) => ({
+        char_id: character.id,
+        img: character.imageUrl,
+      }));
+      const pairsArray = [...characters, ...characters];
       setCharacters(pairsArray.sort(() => 0.5 - Math.random()));
       setLoading(false);
     };

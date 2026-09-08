@@ -1,6 +1,6 @@
 # Memory Game
 
-Classic memory-matching card game built with React and TypeScript. Cards are generated from the [Breaking Bad API](https://www.breakingbadapi.com/), shuffled into pairs, and flipped by clicking.
+Classic memory-matching card game built with React and TypeScript. Cards are generated from the [Game of Thrones API](https://thronesapi.com/), shuffled into pairs, and flipped by clicking.
 
 ## Stack
 

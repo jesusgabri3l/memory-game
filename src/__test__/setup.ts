@@ -7,7 +7,7 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 import { CharactersResponse } from './mocks/characters';
 
 export const restHandlers = [
-  http.get('https://www.breakingbadapi.com/api/character/random', () => {
+  http.get('https://thronesapi.com/api/v2/Characters', () => {
     return HttpResponse.json(CharactersResponse);
   }),
 ];
